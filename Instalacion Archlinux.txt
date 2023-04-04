@@ -1,0 +1,133 @@
+###
+# Instalación de Archlinux
+###
+
+# Aumentar el tamaño de la letra de GUI de instalación de Arch
+setfont ter-132n
+
+# Cambiar idioma de teclado
+loadkeys la-latin1
+
+# Prueba de conección de internet
+ping archlinux.org
+
+# Configuración de la partición actual
+lsblk
+
+# Para el particionado del disco, utilizar cfdisk o gdisk
+cfdisk
+
+# Comprobamos la partición creada con cfdisk
+lsblk
+
+# Formateamos las particiones creadas /dev/sda1 y /dev/sda3
+mkfs.fat -F32 /dev/sda1
+mkfs.btrfs /dev/sda1
+
+# Damos formato a la partición swap
+mkswap /dev/sda2
+swapon /dev/sda2
+
+# Montamos sda3 en mnt
+mount /dev/sda3 /mnt
+
+# Creamos carpetas para efi
+mkdir /mnt/boot
+mkdir /mnt/boot/efi
+
+# Montamos sda1
+mount /dev/sda1 /mnt/boot/efi
+
+# Verificamos el esquema del particionado que va quedando
+lsblk
+
+# Se realiza la instalación base en la partición montada sda3 en mnt
+pacstrap /mnt base linux linux-firmware git vim nano
+
+# Generamos genfstab
+genfstab -U /mnt >> /mnt/etc/fstab
+
+# Inicializamos en la partición montada
+arch-chroot /mnt
+
+git clone https://gitlab.com/eflinux/arch-install-base
+
+# config grub
+
+# install dwm
+
+git clone git://git.suckless.org/dmenu
+git clone git://git.suckless.org/dwm
+git clone git://git.suckless.org/dwmstatus
+git clone git://git.suckless.org/st
+git clone git://git.suckless.org/slock
+
+# ingresar a cada carpeta clonada e introducir
+make
+make install
+
+# entrar en
+cd /usr/share
+
+sudo mkdir xsessions 
+cd xsessions
+sudo vim dwm.desktop
+
+# edita el archivo con lo siguiente
+
+[Desktop Entry]
+Encoding=UTF-8
+Name=Dwm
+Comment=Dynamic window manager
+Exec=dwm
+Icon=dwm
+Type=XSession
+
+# guardar
+
+######
+
+git clone https://aur.archlinux.org/ly
+
+cd ly
+
+makepkg -si
+
+cd
+
+sudo systemctl enable ly
+
+vim .xprofile
+
+# introducri las siguientes lineas
+
+setxkbmap latam
+nitrogen --restore
+xrandr --output Virtual-1 --mode 1920x1080
+
+####
+
+sudo pacman -S nitrogen lxappearence thunar
+
+cd st
+vim config.h
+make 
+sudo make install
+
+cd
+reboot
+
+cd slock/
+vim config.h
+make
+sudo make install
+
+slock
+
+
+
+
+
+
+
+

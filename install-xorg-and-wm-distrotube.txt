@@ -1,0 +1,33 @@
+#install controlador de video
+pacman -S xf86-video-fbdev
+
+#instalando componentes para windows manager
+pacman -S xorg xorg-xinit
+
+#instalando algunos paquetes para usuario
+pacman -S nitrogen picom git vim alacrity
+
+#instalando yay
+git clone https://aur.archlinux.org/yay-git.git
+cd yay-git
+makepkg -si
+
+#instalando con yay algunos paquetes AUR
+yay -S dwm-distrotube-git st-distrotube-git dmenu-distrotube-git nerd-fonts-mononoki 
+
+#in yay-git
+ls -la
+
+cp /etc/x11/xinit/xinitrc /home/username/.xinitrc
+
+vim .xinitrc
+
+#add in .xinitrc
+nitrogen --restore &
+picom &
+exec dwm
+
+sudo reboot
+
+
+

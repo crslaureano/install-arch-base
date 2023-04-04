@@ -1,0 +1,38 @@
+#Reconocimiento de los componentes graficos de nuestro computador
+$ lspci -v | grep -A1 -e VGA -e 3D
+
+#Instalando un adecuado driver (intel), siguiente comando para revisar los componentes adecuados para nuestro sistema
+$ pacman -Ss xf86-video
+
+#Para el caso de tener una tarjeta (nvidia)
+pacman -S nvidia nvidia-utils
+
+#Si estamos en una maquina virtual
+pacman -S vitualbox-guest-utils
+
+#Instalando Xorg
+pacman -S xorg xterm xorg-xinit
+
+#agregando usuarios
+useradd -m nameuser
+#creando contraseña para nameuser
+passwd nameuser
+#configurando permiso
+nano /etc/sudoers
+#agregamos el nameuser para darles permisos al igual que roots "User privilege specification"
+username ALL(ALL:ALL) ALL
+
+#instalando gestor de arranque de la parte del login
+pacman -S lightdm lightdm-gtk-greeter
+
+#configurando lightdm
+nano /etc/lightdm/lightdm.conf
+#buscamos la linea "greeter-session=example-gtk-gnome" y la remplazamos por
+greeter-session=lightdm-gtk-greeter
+
+#habilitar servicios
+systemctl enable lightdm.service
+
+#instalando awesome
+pacman -S awesome
+

@@ -1,0 +1,105 @@
+#cambiando a teclado en español-latino, por defecto viene en ingles
+loadkeys la-latin1
+
+#comprobando la coneccion de internet
+ping archlinux.org
+
+#comprobando si el modo del Boot utiliza EFI (si no da erro, el computador utiliza EFI)
+ls /sys/firmware/efi/efivars
+
+#actualizando zona horaria
+timezone set-ntp true
+
+#realizando al particionado del disco sda
+cfdisk
+#particiones recomendadas en gpt con cfdisk
+512M -> EFI
+4GB -> SWAP
+Resto de espacio para -> ROOT
+
+#verifica las particiones creadas
+lsblk
+
+#formateando particiones creadas
+mkfs.fat -F32 /dev/sda1
+mkfs.btrfs /dev/sda3
+
+#creando y formateando swap
+mkswap /dev/sda2
+swapon /dev/sda2
+
+#montando particion root
+mount /dev/sda3 /mnt
+
+#creamos directorios para el boot
+mkdir /mnt/boot
+mkdir /mnt/boot/efi
+
+#montamos el boot
+mount /dev/sda1 /mnt/boot/efi
+
+#verificamos los mirrorlist y agregar nuevos enlaces si lo deceamos
+nano /etc/pacman.d/mirrorlist
+
+#instalamos el sistema base para la particion montada a traves de pacstrap
+pacstrap /mnt base base-devel linux linux-firmware nano
+
+#generamos un fstab
+genfstab -U /mnt >> /mnt/etc/fstab
+#verificamos el fstab creada
+nano /mnt/etc/fstab
+
+#iniciando arch, el sistema montado en /mnt (sda3)
+arch-chroot /mnt
+
+#verificamos zona horaria
+timedatectl status
+#revisar las listas de las zonas horarias
+timedatectl list-timezones
+#configurando con la zonahoraria seleccionada
+timedatectl set-timezone America/Latina
+
+#definimos zona horaria
+ln -sf /usr/share/zoneinfo/America/Lima /etc/localtime
+
+#iniciamos hwclock
+hwclock --systohc
+
+#editamos /etc/locale.gen y descomentamos para idioma en ingles seria en_US.UTF-8 UTF-8
+nano /etc/locale.gen
+#luego de configurar en el anterior comando invoca el siguiente comando
+locale-gen
+
+#configura los archivos directo con los comando o manualmente si no hay archivo los creas
+echo LANG=en_US.UTF-8 > /etc/locale.conf
+echo KEYMAP=la-latin1 > /etc/vconsole.conf
+echo NameHostname > /etc/hostname #identificacione de la maquina en una red
+
+#creamos un passwd para root
+passwd
+
+#creando los host
+nano /etc/hosts
+
+#configuraciones para el comando anterior
+127.0.0.1		localhost
+::1					localhost
+127.0.0.1   HostName.fqdomain.exmple Hostname #example Archlinux.localdomain Archlinux
+
+#instalamos el paquete de red y lo activamos para cada inicio de sesion
+pacman -S networkmanager
+systemctl enable NetworkManager
+
+#instalamos grub
+pacman -S grub efibootmgr
+grub-install --target=x86_64-efi --efi-directory=boot/efi
+grub-mkconfig -o /boot/grub/grub.cfg
+
+#salimos de arch-chroot /mnt
+exit
+
+#desmontamos sda3
+umount -R /mnt
+
+reboot
+
